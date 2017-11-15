@@ -37,7 +37,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static android.icu.text.Normalizer.NO;
 
 public class InputActivity extends AppCompatActivity
         implements Validator.ValidationListener {
