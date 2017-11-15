@@ -15,6 +15,7 @@ import brainmetics.com.contactdatabase.adapter.ContactAdapter;
 import brainmetics.com.contactdatabase.domain.ContactPerson;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnItemClick;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -60,5 +61,12 @@ public class MainActivity extends AppCompatActivity {
         loadContact();
     }
 
+    @OnItemClick(R.id.listContact)
+    public void setListContactOnClick(int position){
+        ContactPerson cp = (ContactPerson)listContact.getItemAtPosition(position);
+        Intent intent = new Intent(this,DetailActivity.class);
+        intent.putExtra("ID", cp.getId());
+        startActivity(intent);
+    }
 
 }

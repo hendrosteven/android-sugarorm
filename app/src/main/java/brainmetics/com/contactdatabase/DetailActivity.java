@@ -67,6 +67,8 @@ public class DetailActivity extends AppCompatActivity
     Validator validator;
     boolean isValid;
 
+    ContactPerson cp = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,6 +81,24 @@ public class DetailActivity extends AppCompatActivity
         if(shouldAskPermission()){
             askPermission();
         }
+
+        Intent intent = getIntent();
+        long id = intent.getLongExtra("ID",0);
+        cp = ContactPerson.findById(ContactPerson.class,id);
+
+        txtFullname.setText(cp.getFullName());
+        txtPhone.setText(cp.getPhone());
+        txtEmail.setText(cp.getEmail());
+        txtAddress.setText(cp.getAddress());
+        if(cp.getPhoto().length()>0){
+            bitmap = decodeBase64(cp.getPhoto());
+            imgPhoto.setImageBitmap(bitmap);
+        }
+    }
+
+    private Bitmap decodeBase64(String input){
+        byte[] decodeBytes = Base64.decode(input,0);
+        return BitmapFactory.decodeByteArray(decodeBytes, 0, decodeBytes.length);
     }
 
     @Override
@@ -227,7 +247,19 @@ public class DetailActivity extends AppCompatActivity
     @OnClick(R.id.btnSimpan)
     public void btnSimpanOnClick(){
         if(validate()) {
-
+            cp.setFullName(txtFullname.getText().toString().trim());
+            cp.setPhone(txtPhone.getText().toString().trim());
+            cp.setEmail(txtEmail.getText().toString().trim());
+            cp.setAddress(txtAddress.getText().toString().trim());
+            if(bitmap!=null){
+                cp.setPhoto(encodeToBase64(bitmap,Bitmap.CompressFormat.JPEG,
+                        80));
+            }else{
+                cp.setPhoto("");
+            }
+            cp.save();
+            Toast.makeText(this,"Contact updated",Toast.LENGTH_LONG).show();
+            finish();
         }
     }
 }
