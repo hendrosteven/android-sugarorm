@@ -188,7 +188,11 @@ public class InputActivity extends AppCompatActivity {
         cp.setPhone(txtPhone.getText().toString().trim());
         cp.setEmail(txtEmail.getText().toString().trim());
         cp.setAddress(txtAddress.getText().toString().trim());
-        cp.setPhoto("");
+        if(bitmap!=null){
+            cp.setPhoto(encodeToBase64(bitmap, Bitmap.CompressFormat.JPEG,80));
+        }else {
+            cp.setPhoto("");
+        }
         cp.save();
         txtFullname.setText("");
         txtPhone.setText("");
