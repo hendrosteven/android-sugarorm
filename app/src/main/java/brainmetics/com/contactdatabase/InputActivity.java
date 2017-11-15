@@ -21,6 +21,8 @@ import android.widget.Toast;
 
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
+import com.mobsandgeeks.saripaar.annotation.Email;
+import com.mobsandgeeks.saripaar.annotation.NotEmpty;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -35,19 +37,26 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static android.icu.text.Normalizer.NO;
+
 public class InputActivity extends AppCompatActivity
         implements Validator.ValidationListener {
 
     @BindView(R.id.txtFullname)
+    @NotEmpty
     EditText txtFullname;
 
     @BindView(R.id.txtPhone)
+    @NotEmpty
     EditText txtPhone;
 
     @BindView(R.id.txtEmail)
+    @NotEmpty
+    @Email
     EditText txtEmail;
 
     @BindView(R.id.txtAddress)
+    @NotEmpty
     EditText txtAddress;
 
     @BindView(R.id.imgPhoto)
@@ -91,6 +100,13 @@ public class InputActivity extends AppCompatActivity
                 Toast.makeText(this,message,Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    private boolean validate(){
+        if(validator!=null){
+            validator.validate();;
+        }
+        return isValid;
     }
 
     protected boolean shouldAskPermission(){
@@ -212,23 +228,25 @@ public class InputActivity extends AppCompatActivity
 
     @OnClick(R.id.btnSimpan)
     public void btnSimpanOnClick(){
-        ContactPerson cp = new ContactPerson();
-        cp.setFullName(txtFullname.getText().toString().trim());
-        cp.setPhone(txtPhone.getText().toString().trim());
-        cp.setEmail(txtEmail.getText().toString().trim());
-        cp.setAddress(txtAddress.getText().toString().trim());
-        if(bitmap!=null){
-            cp.setPhoto(encodeToBase64(bitmap, Bitmap.CompressFormat.JPEG,80));
-        }else {
-            cp.setPhoto("");
+        if(validate()) {
+            ContactPerson cp = new ContactPerson();
+            cp.setFullName(txtFullname.getText().toString().trim());
+            cp.setPhone(txtPhone.getText().toString().trim());
+            cp.setEmail(txtEmail.getText().toString().trim());
+            cp.setAddress(txtAddress.getText().toString().trim());
+            if (bitmap != null) {
+                cp.setPhoto(encodeToBase64(bitmap, Bitmap.CompressFormat.JPEG, 80));
+            } else {
+                cp.setPhoto("");
+            }
+            cp.save();
+            txtFullname.setText("");
+            txtPhone.setText("");
+            txtEmail.setText("");
+            txtAddress.setText("");
+            Toast.makeText(this, "Data tersimpan", Toast.LENGTH_SHORT).show();
+            finish();
         }
-        cp.save();
-        txtFullname.setText("");
-        txtPhone.setText("");
-        txtEmail.setText("");
-        txtAddress.setText("");
-        Toast.makeText(this,"Data tersimpan",Toast.LENGTH_SHORT).show();
-        finish();
     }
 
 
