@@ -11,12 +11,14 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
+import android.util.Base64;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -156,6 +158,14 @@ public class InputActivity extends AppCompatActivity {
             bitmap = getResizeBitmap(bitmap, 200, 200);
             imgPhoto.setImageBitmap(bitmap);
         }
+    }
+
+    private String encodeToBase64(Bitmap image,
+                                  Bitmap.CompressFormat format,
+                                  int quality){
+        ByteArrayOutputStream byteArrayOs = new ByteArrayOutputStream();
+        image.compress(format, quality, byteArrayOs);
+        return Base64.encodeToString(byteArrayOs.toByteArray(), Base64.DEFAULT);
     }
 
     private Bitmap getResizeBitmap(Bitmap bitmap, int newWidth, int newHeight) {
