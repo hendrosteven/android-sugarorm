@@ -1,8 +1,11 @@
 package brainmetics.com.contactdatabase;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -14,6 +17,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -21,6 +27,8 @@ import brainmetics.com.contactdatabase.domain.ContactPerson;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
+import static android.R.attr.width;
 
 public class InputActivity extends AppCompatActivity {
 
@@ -115,6 +123,52 @@ public class InputActivity extends AppCompatActivity {
             }
         });
         popup.show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        InputStream stream = null;
+        if(requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK){
+            try{
+                if(bitmap!=null){
+                    bitmap.recycle();
+                }
+                stream = getContentResolver().openInputStream(data.getData());
+                bitmap = BitmapFactory.decodeStream(stream);
+                bitmap = getResizeBitmap(bitmap, 200, 200);
+                imgPhoto.setImageBitmap(bitmap);
+            }catch(FileNotFoundException ex){
+                ex.printStackTrace();
+            }finally {
+                if(stream != null){
+                    try{
+                        stream.close();
+                    }catch (IOException ex){
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        }else if(requestCode == CAMERA_REQUEST && resultCode == RESULT_OK){
+            if(bitmap!=null){
+                bitmap.recycle();
+            }
+            bitmap = (Bitmap)data.getExtras().get("data");
+            bitmap = getResizeBitmap(bitmap, 200, 200);
+            imgPhoto.setImageBitmap(bitmap);
+        }
+    }
+
+    private Bitmap getResizeBitmap(Bitmap bitmap, int newWidth, int newHeight) {
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        float scaleWidth = ((float)newWidth/width);
+        float scaleHeight = ((float)newHeight/height);
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth,scaleHeight);
+        Bitmap resizedBitmap = Bitmap
+                .createBitmap(bitmap,0,0,width,height,matrix,false);
+        bitmap.recycle();
+        return resizedBitmap;
     }
 
     @OnClick(R.id.btnSimpan)
