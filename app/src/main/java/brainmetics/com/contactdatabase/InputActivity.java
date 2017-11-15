@@ -14,9 +14,13 @@ import android.support.v7.widget.PopupMenu;
 import android.util.Base64;
 import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.mobsandgeeks.saripaar.ValidationError;
+import com.mobsandgeeks.saripaar.Validator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -24,15 +28,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import brainmetics.com.contactdatabase.domain.ContactPerson;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static android.R.attr.width;
-
-public class InputActivity extends AppCompatActivity {
+public class InputActivity extends AppCompatActivity
+        implements Validator.ValidationListener {
 
     @BindView(R.id.txtFullname)
     EditText txtFullname;
@@ -53,14 +57,39 @@ public class InputActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST = 1888;
     private Bitmap bitmap;
 
+    Validator validator;
+    boolean isValid;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_input);
         ButterKnife.bind(this);
 
+        validator = new Validator(this);
+        validator.setValidationListener(this);
+
         if(shouldAskPermission()){
             askPermission();
+        }
+    }
+
+    @Override
+    public void onValidationSucceeded(){
+        isValid = true;
+    }
+
+    @Override
+    public void onValidationFailed(List<ValidationError> errors){
+        for(ValidationError err: errors){
+            View view  = err.getView();
+            String message = err.getCollatedErrorMessage(this);
+            isValid = false;
+            if(view instanceof EditText){
+                ((EditText) view).setError(message);
+            }else{
+                Toast.makeText(this,message,Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -201,4 +230,6 @@ public class InputActivity extends AppCompatActivity {
         Toast.makeText(this,"Data tersimpan",Toast.LENGTH_SHORT).show();
         finish();
     }
+
+
 }
